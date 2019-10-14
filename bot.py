@@ -1,6 +1,7 @@
 import logging
 import os
 import time
+import wolframalpha
 
 from duckduckpy import query
 from slackclient import SlackClient
@@ -16,6 +17,7 @@ class Robot:
         self.read_delay = 0.2
         self.version = '0.1.0 (alpha)'
         self.COMMANDS_MAP = self.build_commands_map()
+        self.wa_client = wolframalpha.Client(os.environ.get('WA_TOKEN'))
 
     def get_bot_id(self):
         if __name__ == "__main__":
@@ -68,6 +70,11 @@ class Robot:
                 'example': '!wiki <search phrase>',
                 'description': 'returns a single search result from wiki (via DuckDuckGo)'
             },
+            '<@{}>'.format(self.bot_id): {
+                'function': 'command_robot',
+                'example': '@{} <question>'.format(self.name),
+                'description': 'chat with {}'.format(self.name)
+            },
         }
 
     @staticmethod
@@ -88,6 +95,31 @@ class Robot:
             else:
                 return "No results found"
         return "?"
+
+    def command_robot(self, command):
+        new_list = command.split()
+        if len(new_list) > 1:
+            new_list.pop(0)
+            if len(new_list) > 0:
+                try:
+                    result = self.wa_client.query("{}".format(' '.join(new_list)))
+                    i = 1
+                    for pod in result:
+                        if i is 2:
+                            try:
+                                for sub in pod.subpods:
+                                    if sub.plaintext is not None:
+                                        return sub.plaintext.replace(
+                                            "Stephen Wolfram and his team",
+                                            "seria1zed & Stephen Wolfram and his team"
+                                        )
+                            except Exception:
+                                continue
+                        i += 1
+                except Exception:
+                    return 'Sir, I don\'t have an answer for that'
+        else:
+            return 'Sir ?'
 
     def command_version(self, _):
         return 'Botbot {}'.format(self.version)
