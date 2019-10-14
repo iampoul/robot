@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 from slackclient import SlackClient
@@ -39,6 +40,15 @@ class Robot:
                 response = "function not implemented"
             self.slack_client.api_call("chat.postMessage", channel=channel, text=response, as_user=True)
 
+    @staticmethod
+    def parse_slack_output(slack_rtm_output):
+        output_list = slack_rtm_output
+        if output_list and len(output_list) > 0:
+            for output in output_list:
+                if output and 'text' in output:
+                    return output['text'], output['channel']
+        return None, None
+
     def build_commands_map(self):
         return {
             '!help': {
@@ -51,6 +61,7 @@ class Robot:
                 'example': '!version',
                 'description': 'Show <@{}>\'s version'.format(self.name)
             },
+
         }
 
     def start(self):
