@@ -1,6 +1,8 @@
 import logging
 import os
 import time
+
+from duckduckpy import query
 from slackclient import SlackClient
 
 
@@ -61,9 +63,31 @@ class Robot:
                 'example': '!version',
                 'description': 'Show <@{}>\'s version'.format(self.name)
             },
-
-
+            '!wiki': {
+                'function': 'command_wiki',
+                'example': '!wiki <search phrase>',
+                'description': 'returns a single search result from wiki (via DuckDuckGo)'
+            },
         }
+
+    @staticmethod
+    def command_wiki(command):
+        result = ''
+        new_list = command.split()
+        if len(new_list) > 1:
+            new_list.pop(0)
+            if len(new_list) > 1:
+                result = query("wiki {}".format(' '.join(new_list)), False, 'namedtuple', False, 'duckduckpy 0.2', True,
+                               False, True)
+            if len(new_list) is 1:
+                result = query("{}".format(' '.join(new_list)), False, 'namedtuple', False, 'duckduckpy 0.2', True,
+                               False, True)
+            response = result.abstract_url
+            if len(response) > 0:
+                return response
+            else:
+                return "No results found"
+        return "?"
 
     def command_version(self, _):
         return 'Botbot {}'.format(self.version)
