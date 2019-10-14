@@ -62,7 +62,11 @@ class Robot:
                 'description': 'Show <@{}>\'s version'.format(self.name)
             },
 
+
         }
+
+    def command_version(self, _):
+        return 'Botbot {}'.format(self.version)
 
     def start(self):
         if __name__ == "__main__":
