@@ -14,7 +14,7 @@ class Robot:
         self.bot_id = self.get_bot_id()
         self.bot_start_time = time.time()
         self.read_delay = 0.2
-        self.version = '0.5.1 (alpha)'
+        self.version = '0.5.5 (alpha)'
         self.COMMANDS_MAP = self.build_commands_map()
         self.wa_client = wolframalpha.Client(os.environ.get('WA_TOKEN'))
 
